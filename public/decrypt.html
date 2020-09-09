@@ -2,16 +2,19 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Decrypt stuff sent to you</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Decrypt stuff sent to me</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <main>
-      <h1>In-browser decrypter</h1>
+      <h1>In-browser <a href="index.html" class="decrypt">encrypter</a> / decrypter</h1>
+      <h2>Decrypt something someone sent me</h2>
 
-      <h2>Decrypt something someone sent me (Espen)</h2>
-
-      <p>Note: You kind of need my private key for this, so this won't work unless you're... me.</p>
+      <p>
+        Note: You kind of need my private key for this, so the decrypting won't work unless
+        you're... me. Or have my private key. Which you hopepully shouldn't have.
+      </p>
 
       <hr />
 
@@ -32,9 +35,15 @@
       <div id="output">
         <textarea id="decrypted" readonly></textarea>
       </div>
-
-      <a href="index.html" class="decrypt">Encrypt</a>
     </main>
+
+    <a href="https://github.com/rexxars/espencrypt" class="fork-ribbon"
+      ><img
+        style="z-index: 5001; position: absolute; top: 0; right: 0; border: 0"
+        src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67"
+        alt="Fork me on GitHub"
+        data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"
+    /></a>
 
     <script>
       ;(function () {

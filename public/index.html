@@ -2,13 +2,14 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Encrypt stuff you want to send to Espen</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Encrypt stuff you want to send to me</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <main>
-      <h1>In-browser encrypter</h1>
-      <h2>Encrypt something you want to send me (Espen)</h2>
+      <h1>In-browser encrypter / <a href="decrypt.html" class="decrypt">decrypter</a></h1>
+      <h2>Encrypt something you want to send me</h2>
 
       <p>
         Uses WebCrypto with my private key hardcoded. Does not communicate with a server in any way.
@@ -26,29 +27,35 @@
       <h2>Encrypted</h2>
       <div id="output">
         <textarea id="encrypted" readonly></textarea>
+        <p id="instructions" class="hidden">
+          <button id="copy" type="button">Copy</button> the text above and send it to me on
+          whichever medium you prefer.
+        </p>
       </div>
-
-      <a href="decrypt.html" class="decrypt">Decrypt</a>
     </main>
 
+    <a href="https://github.com/rexxars/espencrypt" class="fork-ribbon"
+      ><img
+        style="z-index: 5001; position: absolute; top: 0; right: 0; border: 0"
+        src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67"
+        alt="Fork me on GitHub"
+        data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"
+    /></a>
+
+    <script src="./publicKey.js"></script>
     <script>
       ;(function () {
         const els = {
           encrypted: document.querySelector('#encrypted'),
+          instructions: document.querySelector('#instructions'),
           button: document.querySelector('#encrypt-button'),
           message: document.querySelector('#message'),
+          copy: document.querySelector('#copy'),
         }
 
         const publicKey = window.crypto.subtle.importKey(
           'jwk',
-          {
-            alg: 'RSA-OAEP-256',
-            e: 'AQAB',
-            ext: true,
-            kty: 'RSA',
-            n:
-              'ysUeTGwQ8ef2iyppRS99-muj2-9BaUYUFmhGzq0E8CvDihKICKOEagoU2MjlwUWFiYR3KS3tsVVX3jKL95B7fuqUNRcEmES8iYndf1srLpg-2MC_79pEE9SaxiKBaRXCJ7YGkOTy9wWswpUan6gb25MskWB8LTPJMAaaRoz026g8G1vMlxQsT07fsH3IjGJ56tiIW8vYE-UNZ0X6jIHUYuUrrSqkMJpn8OP4EmKJ0faoROEmG-3gWUYxO6RUbopDV5tte_cjsqo-D8mdMLdYQ3VL0mif-w3piCeJiLOnE1oIv4Y8WraD2BzVIFa3dbsLygcurmZc9ij4vgaryml1YQ',
-          },
+          window.publicKeyJwk,
           {name: 'RSA-OAEP', hash: 'SHA-256'},
           false,
           ['encrypt']
@@ -65,14 +72,22 @@
         async function doIt() {
           const result = await encryptMessage(els.message.value)
           els.encrypted.value = btoa(String.fromCharCode(...new Uint8Array(result)))
+          els.instructions.classList.remove('hidden')
         }
 
         function clearIt() {
           els.encrypted.value = ''
+          els.instructions.classList.add('hidden')
+        }
+
+        function copyText() {
+          els.encrypted.select()
+          document.execCommand('copy')
         }
 
         els.button.addEventListener('click', doIt, false)
         els.message.addEventListener('keyup', clearIt, false)
+        els.copy.addEventListener('click', copyText, false)
       })()
     </script>
   </body>
