@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Encrypt stuff you want to send to Espen</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main>
+      <h1>In-browser encrypter</h1>
+      <h2>Encrypt something you want to send me (Espen)</h2>
+
+      <p>
+        Uses WebCrypto with my private key hardcoded. Does not communicate with a server in any way.
+        See the source code! (view source)
+      </p>
+
+      <hr />
+
+      <h2>Input</h2>
+      <div id="input">
+        <textarea id="message"></textarea>
+        <button id="encrypt-button" type="button">Encrypt</button>
+      </div>
+
+      <h2>Encrypted</h2>
+      <div id="output">
+        <textarea id="encrypted" readonly></textarea>
+      </div>
+
+      <a href="decrypt.html" class="decrypt">Decrypt</a>
+    </main>
+
+    <script>
+      ;(function () {
+        const els = {
+          encrypted: document.querySelector('#encrypted'),
+          button: document.querySelector('#encrypt-button'),
+          message: document.querySelector('#message'),
+        }
+
+        const publicKey = window.crypto.subtle.importKey(
+          'jwk',
+          {
+            alg: 'RSA-OAEP-256',
+            e: 'AQAB',
+            ext: true,
+            kty: 'RSA',
+            n:
+              'ysUeTGwQ8ef2iyppRS99-muj2-9BaUYUFmhGzq0E8CvDihKICKOEagoU2MjlwUWFiYR3KS3tsVVX3jKL95B7fuqUNRcEmES8iYndf1srLpg-2MC_79pEE9SaxiKBaRXCJ7YGkOTy9wWswpUan6gb25MskWB8LTPJMAaaRoz026g8G1vMlxQsT07fsH3IjGJ56tiIW8vYE-UNZ0X6jIHUYuUrrSqkMJpn8OP4EmKJ0faoROEmG-3gWUYxO6RUbopDV5tte_cjsqo-D8mdMLdYQ3VL0mif-w3piCeJiLOnE1oIv4Y8WraD2BzVIFa3dbsLygcurmZc9ij4vgaryml1YQ',
+          },
+          {name: 'RSA-OAEP', hash: 'SHA-256'},
+          false,
+          ['encrypt']
+        )
+
+        async function encryptMessage(data) {
+          return window.crypto.subtle.encrypt(
+            {name: 'RSA-OAEP'},
+            await publicKey,
+            new TextEncoder().encode(data)
+          )
+        }
+
+        async function doIt() {
+          const result = await encryptMessage(els.message.value)
+          els.encrypted.value = btoa(String.fromCharCode(...new Uint8Array(result)))
+        }
+
+        function clearIt() {
+          els.encrypted.value = ''
+        }
+
+        els.button.addEventListener('click', doIt, false)
+        els.message.addEventListener('keyup', clearIt, false)
+      })()
+    </script>
+  </body>
+</html>
