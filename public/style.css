@@ -1,6 +1,23 @@
-main {
+html {
+  height: 100%;
+}
+
+body {
   font-family: arial, sans-serif;
   font-size: 16px;
+  min-height: 100%;
+  display: grid;
+  grid-template-rows: 1fr auto;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+main,
+footer {
   margin: 0 auto;
   max-width: 600px;
 }
@@ -18,6 +35,18 @@ textarea {
 
 button {
   font-size: 1.2em;
+}
+
+#steps {
+  font-size: 1.2em;
+}
+
+#steps li {
+  margin: 1em 0;
+}
+
+#generate-button {
+  color: blue;
 }
 
 #encrypted,
@@ -38,4 +67,20 @@ a.decrypt {
   bottom: 10px;
   right: 10px;
   color: black;
+}
+
+code {
+  background: #eee;
+  padding: 0.1em;
+}
+
+.no {
+  color: red;
+}
+
+footer {
+  grid-row-start: 2;
+  grid-row-end: 3;
+  padding: 10px 0;
+  font-size: 0.8em;
 }

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create your own personal encrypter/decrypter</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main>
+      <h1>How to make your own personal encrypter/decrypter</h1>
+      <h2>That is, your own version of <a class="decrypt" href="index.html">this</a>.</h2>
+
+      <ol id="steps">
+        <li><a href="https://github.com/rexxars/espencrypt" target="_blank">Fork the repo</a></li>
+        <li><a href="#" id="generate-button">Generate a keypair</a></li>
+        <li id="keypair-links" class="hidden">Save the public and private keys.</li>
+        <li class="last-steps hidden">
+          Move the public key (<code>publicKey.js</code>) into your forked repo's
+          <code>public</code> folder, overwriting the existing file.
+        </li>
+        <li class="last-steps hidden">
+          Move the private key (<code>privateKey.json</code>) somewhere
+          <strong><em>safe</em></strong
+          >. You'll need it every time you decrypt something. If you lose the key, there is
+          <strong>no way</strong> to recover it and decrypt anymore.<br /><br />
+
+          <strong class="no">DO NOT</strong> add the private key to your version control!
+        </li>
+        <li class="last-steps hidden">
+          Deploy the public folder somewhere. It's just static files, so
+          <a href="https://www.netlify.com/">Netlify</a>, <a href="https://vercel.com/">Vercel</a>,
+          <a href="https://surge.sh/">Surge</a> or any other static host should do. Or put it on
+          your on personal site, somewhere.
+        </li>
+      </ol>
+    </main>
+
+    <footer>
+      EspenCrypt by <a href="https://espen.codes/">Espen Hovlandsdal</a>. Make your own
+      <a href="yourown.html">personal version</a>.
+    </footer>
+
+    <a href="https://github.com/rexxars/espencrypt" class="fork-ribbon"
+      ><img
+        style="z-index: 5001; position: absolute; top: 0; right: 0; border: 0"
+        src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67"
+        alt="Fork me on GitHub"
+        data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"
+    /></a>
+
+    <script>
+      ;(function () {
+        const els = {
+          button: document.querySelector('#generate-button'),
+          steps: document.querySelector('#steps'),
+        }
+
+        function generateKeyPair() {
+          return window.crypto.subtle.generateKey(
+            {
+              name: 'RSA-OAEP',
+              modulusLength: 2048,
+              publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+              hash: {
+                name: 'SHA-256',
+              },
+            },
+            true,
+            ['encrypt', 'decrypt']
+          )
+        }
+
+        async function createKey() {
+          if (els.keyPair) {
+            alert('Keypair already generated. Reload page if you want a new one.')
+            return
+          }
+
+          // Keypair links
+          els.keyPair = document.querySelector('#keypair-links')
+          const keyPair = await generateKeyPair()
+          const publicKey = json(await window.crypto.subtle.exportKey('jwk', keyPair.publicKey))
+          const privateKey = json(await window.crypto.subtle.exportKey('jwk', keyPair.privateKey))
+
+          els.keyPair.innerHTML = `Save the public and private keys.<br />
+            Keep the private key… well, <strong><em>private</em></strong>.<br />
+            Anyone with the private key can decrypt.`
+
+          const keyLinks = document.createElement('ul')
+          keyLinks.appendChild(createKeyListItem(publicKey, 'public'))
+          keyLinks.appendChild(createKeyListItem(privateKey, 'private'))
+
+          els.keyPair.appendChild(keyLinks)
+          els.keyPair.classList.remove('hidden')
+
+          // Reveal remaining instructions
+          const lastSteps = document.querySelectorAll('.last-steps')
+          lastSteps.forEach((node) => node.classList.remove('hidden'))
+
+          // Add an unload handler to prevent losing keys
+          window.addEventListener('beforeunload', (event) => {
+            if (!window.confirm('Have you saved your keypair yet?')) {
+              event.preventDefault()
+              event.returnValue = ''
+            }
+          })
+        }
+
+        function createKeyListItem(key, type) {
+          const li = document.createElement('li')
+          const a = document.createElement('a')
+          const isPublic = type === 'public'
+          const mime = isPublic ? 'text/javascript' : 'application/json'
+          const text = isPublic ? 'Save public key' : 'Save private key'
+          const file = isPublic ? 'publicKey.js' : 'privateKey.json'
+          const prefix = isPublic ? 'window.publicKeyJwk = ' : ''
+          const data = btoa(`${prefix}${key}`)
+          a.setAttribute('href', `data:${mime};base64,${data}`)
+          a.setAttribute('download', file)
+          a.setAttribute('target', '_blank')
+          a.appendChild(document.createTextNode(text))
+          li.appendChild(a)
+          return li
+        }
+
+        function json(data) {
+          const {key_ops, ...key} = data
+          return JSON.stringify(key, null, 2)
+        }
+
+        els.button.addEventListener('click', createKey, false)
+      })()
+    </script>
+  </body>
+</html>
